@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  vo-php:
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    container_name: vo-php
+    volumes:
+      - ./:/app
+      - validation_object_composer:/root/.composer/cache
+    networks:
+      - validation_object
+
+volumes:
+  validation_object_composer:
+
+networks:
+  validation_object:
+    driver: bridge
