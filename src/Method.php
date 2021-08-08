@@ -6,7 +6,7 @@ namespace FillObjectHelper;
 
 use FillObjectHelper\Interfaces\ElementInterface;
 
-class Method extends BaseElement implements ElementInterface
+class Method implements ElementInterface
 {
     private \ReflectionParameter $parameter;
 
@@ -33,49 +33,6 @@ class Method extends BaseElement implements ElementInterface
         return lcfirst(preg_replace('/^set/', '', $this->method->getName()));
     }
 
-    public function isUnionType(): bool
-    {
-        return $this->parameter->getType() instanceof \ReflectionUnionType;
-    }
-
-    public function getType(): array
-    {
-        return $this->isUnionType() ? $this->parameter->getType() : [$this->parameter->getType()];
-    }
-
-    public function isRequired(): bool
-    {
-        foreach ($this->getType() as $type) {
-            if ($type->allowsNull()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public function getTypeClass(): ?string
-    {
-        foreach ($this->getType() as $type) {
-            if (!in_array($type->getName(), self::getDefaultTypes(), true) && class_exists($type->getName())) {
-                return $type->getName();
-            }
-        }
-
-        return null;
-    }
-
-    public function isAllowType(string $typeValue): bool
-    {
-        foreach ($this->getType() as $type) {
-            if ($typeValue === $type->getName()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function setValue(object $dto, mixed $value): void
     {
         call_user_func([$dto, $this->method->getName()], $value);
@@ -93,5 +50,10 @@ class Method extends BaseElement implements ElementInterface
         $property->setAccessible(true);
 
         return $property->isInitialized($dto);
+    }
+
+    public function getType(): \ReflectionNamedType|\ReflectionUnionType
+    {
+        return $this->parameter->getType();
     }
 }

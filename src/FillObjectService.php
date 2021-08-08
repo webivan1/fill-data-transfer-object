@@ -24,19 +24,19 @@ class FillObjectService
                 $element = new Property($prop);
             }
 
-            if (($newClassName = $element->getTypeClass()) && $typeOfValue === 'array') {
-                // @todo Check this array, assoc type array or no
+            $type = new Type($element->getType());
 
+            if (($newClassName = $type->getTypeClass()) && $typeOfValue === 'array') {
                 $element->setValue($dto, $this->fillAsArray($newClassName, $value));
                 continue;
             }
 
-            if ($element->isAllowType($typeOfValue)) {
+            if ($type->isAllowType($typeOfValue)) {
                 $element->setValue($dto, $value);
-            } else if (!$element->isRequired()) {
+            } else if (!$type->isRequired()) {
                 $element->setValue($dto, null);
             } else if (!$element->isInitialized($dto)) {
-                $this->setEmptyValueByElement($element, $dto);
+                $this->setEmptyValueByElement($element, $type, $dto);
             }
         }
 
@@ -59,12 +59,12 @@ class FillObjectService
         return (new self)->fillAsArray($className, $params);
     }
 
-    private function setEmptyValueByElement(ElementInterface $element, object $dto): void
+    private function setEmptyValueByElement(ElementInterface $element, Type $types, object $dto): void
     {
         $allowTypes = ['int', 'float', 'array', 'string'];
 
-        foreach ($element->getType() as $type) {
-            if (!$element->getTypeClass() && in_array($type->getName(), $allowTypes, true)) {
+        foreach ($types->getTypes() as $type) {
+            if (in_array($type->getName(), $allowTypes, true)) {
                 $element->setValue($dto, match($type->getName()) {
                     'int', 'float' => 0,
                     'array' => [],
@@ -77,17 +77,17 @@ class FillObjectService
     private function getTypeOfValue(mixed $value): string
     {
         if (is_callable($value)) {
-            return 'callable';
+            return Type::TYPE_CALLABLE;
         }
 
         return match(gettype($value)) {
-            'integer' => 'int',
-            'double' => 'float',
-            'boolean' => 'bool',
-            'object' => 'object',
-            'array' => 'array',
-            'NULL' => 'null',
-            default => 'string',
+            'integer' => Type::TYPE_INT,
+            'double' => Type::TYPE_FLOAT,
+            'boolean' => Type::TYPE_BOOL,
+            'object' => Type::TYPE_OBJECT,
+            'array' => Type::TYPE_ARRAY,
+            'NULL' => Type::TYPE_NULL,
+            default => Type::TYPE_STRING,
         };
     }
 }

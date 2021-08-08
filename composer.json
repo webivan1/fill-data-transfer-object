@@ -11,7 +11,8 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "FillObjectHelper\\": "src/"
+            "FillObjectHelper\\": "src/",
+            "FillObjectHelper\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -20,5 +21,8 @@
             "email": "ivan.maltsev.php@gmail.com"
         }
     ],
+    "scripts": {
+        "test": "phpunit --color=always"
+    },
     "minimum-stability": "stable"
 }
