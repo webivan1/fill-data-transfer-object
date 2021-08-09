@@ -4,7 +4,7 @@ namespace FillObjectHelper\Interfaces;
 
 interface ElementInterface
 {
-    public function getType(): \ReflectionNamedType | \ReflectionUnionType;
+    public function getType(): \ReflectionNamedType|\ReflectionUnionType;
 
     public function setValue(object $dto, mixed $value): void;
 

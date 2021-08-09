@@ -35,7 +35,7 @@ class FillObjectService
                 $element->setValue($dto, $value);
             } else if (!$type->isRequired()) {
                 $element->setValue($dto, null);
-            } else if (!$element->isInitialized($dto)) {
+            } else if (!$type->isUnionType() && !$element->isInitialized($dto)) {
                 $this->setEmptyValueByElement($element, $type, $dto);
             }
         }
@@ -43,7 +43,12 @@ class FillObjectService
         return $dto;
     }
 
-    public function fillAsJson(string $className, string $json): object
+    public static function fill(string $className, array $params): object
+    {
+        return (new self)->fillAsArray($className, $params);
+    }
+
+    public static function fillJson(string $className, string $json): object
     {
         $data = json_decode($json, true);
 
@@ -51,12 +56,7 @@ class FillObjectService
             throw new \InvalidArgumentException('Incorrect json value');
         }
 
-        return $this->fillAsArray($className, $data);
-    }
-
-    public static function fill(string $className, array $params): object
-    {
-        return (new self)->fillAsArray($className, $params);
+        return self::fill($className, $data);
     }
 
     private function setEmptyValueByElement(ElementInterface $element, Type $types, object $dto): void

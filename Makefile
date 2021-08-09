@@ -4,5 +4,8 @@ up:
 down:
 	docker-compose down --remove-orphans
 
+install:
+	docker-compose run --rm vo-php sh -c "composer install"
+
 test:
 	docker-compose run --rm vo-php sh -c "composer test"
